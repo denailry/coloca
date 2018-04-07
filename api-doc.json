@@ -1,0 +1,51 @@
+{
+	"api": 
+	{
+		"place": [
+			{
+				"method": "GET",
+				"url": "/api/place",
+				"query": {
+					"search": "(string) keyword to search place",
+					"(optional) limit": "(int) number of place expected to be returned",
+					"(optional) offset": "(int) first index of place expected to be returned"
+				}
+			},
+			{
+				"method": "GET",
+				"url": "/api/place/id/:id_destination",
+				"query": null
+			},
+			{
+				"method": "GET",
+				"url": "/api/place/top10",
+				"query": null
+			},
+			{
+				"method": "GET",
+				"url": "/api/place/route",
+				"query": {
+					"origin": "(string) origin place to begin route searching",
+					"dest": "(string) destination place to end route searching"
+				}
+			}
+		],
+		"guide": [
+			{
+				"method": "GET",
+				"url": "/api/account/guide",
+				"query": {
+					"(optional) name": "(string) keyword of name to search for tour guide name",
+					"(optional) city": "(string/array of string) keyword of city/cities to search for tour guide city/cities",
+					"(optional) limit": "(int) number of tour guide expected to be returned",
+					"(optional) offset": "(int) first index of tour guide expected to be returned"
+				}
+			},
+			{
+				"method": "GET",
+				"url": "/api/account/id/:id_guide",
+				"query": null
+			}
+		]
+	}
+}
