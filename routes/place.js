@@ -86,6 +86,14 @@ app.get('/top10', (req, res) => {
 		host.con.query(query.build(), (err, result) => {
 			if (!err) {
 				result.forEach((place, index) => {
+					if (place.img_type.length != 0) {
+						place.img_url = utils.build_scheme(
+							'http://dirdomain/dir/file_name.extension', 
+							['http', host.DIR, PLACE_IMAGE_DIR, place.id_destination, place.name.replace(/ /g, '_'), place.img_type]
+						);
+					} else {
+						place.img_url = null;
+					}
 					delete place.img_type;
 					for (var key in body) {
 						if (key == place.name) {
