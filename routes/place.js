@@ -1,3 +1,5 @@
+const PLACE_IMAGE_DIR = "img/place";
+
 const express = require("express");
 const host = require('../scripts/host');
 const utils = require('../scripts/utils');
@@ -51,8 +53,13 @@ app.get('/', (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
+				if (item.img_type != null) {
+					item.img_url = utils.build_scheme(
+						'http://dirdomain/dir/file_name.extension', 
+						['http', host.DIR, PLACE_IMAGE_DIR, item.id_destination, item.name.replace(/ /g, '_'), item.img_type]
+					);
+				}	
 				delete item.img_type;
-				item.img_url = null;
 			});
 			res.send(utils.send(result));
 		} else {
@@ -80,7 +87,6 @@ app.get('/top10', (req, res) => {
 			if (!err) {
 				result.forEach((place, index) => {
 					delete place.img_type;
-					place.img_url = null;
 					for (var key in body) {
 						if (key == place.name) {
 							place.rating = body[key];
@@ -107,8 +113,13 @@ app.get('/id/:id_destination', (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
+				if (item.img_type != null) {
+					item.img_url = utils.build_scheme(
+						'http://dirdomain/dir/file_name.extension', 
+						['http', host.DIR, PLACE_IMAGE_DIR, item.id_destination, item.name.replace(/ /g, '_'), item.img_type]
+					);
+				}
 				delete item.img_type;
-				item.img_url = null;
 			});
 			var url = 'http://ilhamfp31.pythonanywhere.com/' + result[0].name;
 			request(url, {json: true}, (err, requestResult, body) => {

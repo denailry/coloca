@@ -1,3 +1,5 @@
+const GUIDE_IMAGE_DIR = "img/guide";
+
 var express = require("express");
 var host = require('../scripts/host');
 var utils = require('../scripts/utils');
@@ -49,8 +51,13 @@ app.get("/", (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
+				if (item.img_type != null) {
+					item.img_url = utils.build_scheme(
+						'http://dirdomain/dir/file_name.extension', 
+						['http', host.DIR, GUIDE_IMAGE_DIR, item.id_guide, item.name.replace(/ /g, '_'), item.img_type]
+					);
+				}
 				delete item.img_type;
-				item.img_url = null;
 			});
 			res.send(utils.send(result));
 		} else {
@@ -69,8 +76,13 @@ app.get("/get/:id_guide", (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
+				if (item.img_type != null) {
+					item.img_url = utils.build_scheme(
+						'http://dirdomain/dir/file_name.extension', 
+						['http', host.DIR, GUIDE_IMAGE_DIR, item.id_guide, item.name.replace(/ /g, '_'), item.img_type]
+					);
+				}
 				delete item.img_type;
-				item.img_url = null;
 			});
 			res.send(utils.send(result));
 		} else {
