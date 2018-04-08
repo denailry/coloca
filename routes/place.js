@@ -50,6 +50,10 @@ app.get('/', (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			result.forEach((item, index) => {
+				delete item.img_type;
+				item.img_url = null;
+			});
 			res.send(utils.send(result));
 		} else {
 			res.send(utils.throw('failed to retrieve place data', exception.sql('place', err.code, query.build())));
@@ -75,6 +79,8 @@ app.get('/top10', (req, res) => {
 		host.con.query(query.build(), (err, result) => {
 			if (!err) {
 				result.forEach((place, index) => {
+					delete place.img_type;
+					place.img_url = null;
 					for (var key in body) {
 						if (key == place.name) {
 							place.rating = body[key];
@@ -100,6 +106,10 @@ app.get('/id/:id_destination', (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			result.forEach((item, index) => {
+				delete item.img_type;
+				item.img_url = null;
+			});
 			var url = 'http://ilhamfp31.pythonanywhere.com/' + result[0].name;
 			request(url, {json: true}, (err, requestResult, body) => {
 				if (err) { 

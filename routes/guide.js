@@ -48,6 +48,10 @@ app.get("/", (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			result.forEach((item, index) => {
+				delete item.img_type;
+				item.img_url = null;
+			});
 			res.send(utils.send(result));
 		} else {
 			res.send(utils.throw('failed to retrieve place data', exception.sql('place', err.code, query.build())));
@@ -64,6 +68,10 @@ app.get("/get/:id_guide", (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			result.forEach((item, index) => {
+				delete item.img_type;
+				item.img_url = null;
+			});
 			res.send(utils.send(result));
 		} else {
 			res.send(utils.throw('failed to retrieve place data', exception.sql('place', err.code, query.build())));
