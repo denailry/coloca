@@ -83,15 +83,13 @@ app.get('/top10', (req, res) => {
 			query.addCondition(sql.OR, sql.make_cond('name', sql.LIKE, utils.wrap('%', key)));
 		}
 
-		console.log(query.build());
-
 		host.con.query(query.build(), (err, result) => {
 			if (!err) {
 				result.forEach((place, index) => {
 					delete place.img_type;
 					for (var key in body) {
 						if (key == place.name) {
-							place.rating = body[key];
+							place.rating = parseFloat(body[key]);
 							delete body[key];
 							break;
 						}
@@ -131,7 +129,7 @@ app.get('/id/:id_destination', (req, res) => {
 					res.send(utils.throw('failed to request review data', exception.http('place/id_destination', err.code, url)));
 				}
 				result[0].review = body.positif;
-				result[0].rating = body.summary[0].rating;
+				result[0].rating = parseFloat(body.summary[0].rating);
 				res.send(utils.send(result));
 			});
 		} else {
