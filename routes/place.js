@@ -53,11 +53,13 @@ app.get('/', (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
-				if (item.img_type != null) {
+				if (item.img_type.length != 0) {
 					item.img_url = utils.build_scheme(
 						'http://dirdomain/dir/file_name.extension', 
 						['http', host.DIR, PLACE_IMAGE_DIR, item.id_destination, item.name.replace(/ /g, '_'), item.img_type]
 					);
+				} else {
+					item.img_url = null;
 				}	
 				delete item.img_type;
 			});
@@ -113,11 +115,13 @@ app.get('/id/:id_destination', (req, res) => {
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
 			result.forEach((item, index) => {
-				if (item.img_type != null) {
+				if (item.img_type.length != 0) {
 					item.img_url = utils.build_scheme(
 						'http://dirdomain/dir/file_name.extension', 
 						['http', host.DIR, PLACE_IMAGE_DIR, item.id_destination, item.name.replace(/ /g, '_'), item.img_type]
 					);
+				} else {
+					item.img_url = null;
 				}
 				delete item.img_type;
 			});
