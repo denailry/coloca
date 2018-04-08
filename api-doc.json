@@ -43,7 +43,7 @@
 			},
 			{
 				"method": "GET",
-				"url": "/api/account/id/:id_guide",
+				"url": "/api/account/guide/id/:id_guide",
 				"query": null
 			}
 		]
