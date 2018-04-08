@@ -1,4 +1,5 @@
 const GUIDE_IMAGE_DIR = "img/guide";
+const ENDPOINT = 'account/guide';
 
 var express = require("express");
 var host = require('../scripts/host');
@@ -9,7 +10,26 @@ var hash = require("password-hash");
 var app = express.Router();
 var logging = utils.logging;
 
+var sqlQuery = function(query, endpoint="") {
+	return new Promise((resolve, reject) => {
+		host.con.query(query.build(), (err, result) => {
+			if (err) {
+				new Promise(resolve => {
+					logging("SQL_ERR/toko: " + err.code + " " + query.build());
+					resolve(exception.sql(endpoint, err.code, query.build()));
+				}).then(() => {
+					reject(err);
+				});
+			} else {
+				resolve(result);
+			}
+		});
+	});
+}
+
 app.get("/", (req, res) => {
+	var endpoint = ENDPOINT;
+
 	var name = req.query.name;
 	var city = req.query.city;
 	var limit = req.query.limit;
@@ -50,7 +70,11 @@ app.get("/", (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			var languagePromises = [];
+			var cityPromises = [];
 			result.forEach((item, index) => {
+				item.city = [];
+				item.language = [];
 				if (item.img_type.length != 0) {
 					item.img_url = utils.build_scheme(
 						'http://dirdomain/dir/file_name.extension', 
@@ -59,9 +83,50 @@ app.get("/", (req, res) => {
 				} else {
 					item.img_url = null;
 				}
+				var langQuery = sql.make_sql(sql.SELECT, 'guide_languages')
+					.addFields('id_guide, language')
+					.setCondition('id_guide', sql.EqualTo, item.id_guide);
+				var cityQUery = sql.make_sql(sql.SELECT, 'guide_cities')
+					.addFields('id_guide, city')
+					.setCondition('id_guide', sql.EqualTo, item.id_guide);
+				var language = sqlQuery(langQuery, endpoint).catch(err => res.send({error: {msg: 'failed to retrieve languages'}, result: null}));
+				var city = sqlQuery(cityQUery, endpoint).catch(err => res.send({error: {msg: 'failed to cities'}, result: null}));
+				languagePromises.push(language);
+				cityPromises.push(city);
 				delete item.img_type;
 			});
-			res.send(utils.send(result));
+
+			var completeResult = async () => {
+				await Promise.all(cityPromises).then((values) => {
+					values.forEach((value, index) => {
+						value.forEach((item, idx) => {
+							if (item.city.length != 0) {
+								result[item.id_guide].city.push(item.city);
+							}
+						});
+					});
+				}).catch((err) => {
+					res.send(utils.throw('failed to retrieve cities data', err));
+					return;
+				});
+				await Promise.all(languagePromises).then((values) => {
+					values.forEach((value, index) => {
+						value.forEach((item, idx) => {
+							if (item.language.length != 0) {
+								result[item.id_guide].language.push(item.language);
+							}
+						});
+					});
+				}).catch((err) => {
+					res.send(utils.throw('failed to retieve languages data', err));
+					return;
+				});
+			}
+			completeResult().then(() => {
+				res.send(utils.send(result));
+			}).catch((err) => {
+				return;
+			})
 		} else {
 			res.send(utils.throw('failed to retrieve place data', exception.sql('place', err.code, query.build())));
 		}
@@ -69,6 +134,8 @@ app.get("/", (req, res) => {
 });	
 
 app.get("/id/:id_guide", (req, res) => {
+	var endpoint = ENDPOINT+'/id/:id_guide';
+
 	var idGuide = req.params.id_guide;
 
 	var query = sql.make_sql(sql.SELECT, 'account_guide')
@@ -77,6 +144,8 @@ app.get("/id/:id_guide", (req, res) => {
 
 	host.con.query(query.build(), (err, result) => {
 		if(!err) {
+			var languagePromises = [];
+			var cityPromises = [];
 			result.forEach((item, index) => {
 				if (item.img_type.length != 0) {
 					item.img_url = utils.build_scheme(
@@ -86,11 +155,52 @@ app.get("/id/:id_guide", (req, res) => {
 				} else {
 					item.img_url = null;
 				}
+				var langQuery = sql.make_sql(sql.SELECT, 'guide_languages')
+					.addFields('language')
+					.setCondition('id_guide', sql.EqualTo, item.id_guide);
+				var cityQUery = sql.make_sql(sql.SELECT, 'guide_cities')
+					.addFields('city')
+					.setCondition('id_guide', sql.EqualTo, item.id_guide);
+				var language = sqlQuery(langQuery, endpoint).catch(err => res.send({error: {msg: 'failed to retrieve languages'}, result: null}));
+				var city = sqlQuery(cityQUery, endpoint).catch(err => res.send({error: {msg: 'failed to cities'}, result: null}));
+				languagePromises.push(language);
+				cityPromises.push(city);
+
 				delete item.img_type;
 			});
-			res.send(utils.send(result));
+
+			var completeResult = async () => {
+				result[0].city = [];
+				await Promise.all(cityPromises).then((values) => {
+					values.forEach((value, index) => {
+						value.forEach((item, idx) => {
+							result[0].city.push(item.city);
+						});
+					});
+				}).catch((err) => {
+					res.send(utils.throw('failed to retrieve cities data', err));
+					return;
+				});
+				result[0].language = [];
+				await Promise.all(languagePromises).then((values) => {
+					values.forEach((value, index) => {
+						value.forEach((item, idx) => {
+							result[0].language.push(item.language);
+						});
+					});
+				}).catch((err) => {
+					res.send(utils.throw('failed to retieve languages data', err));
+					return;
+				});
+			}	
+
+			completeResult().then(() => {
+				res.send(utils.send(result));
+			}).catch((err) => {
+				return;
+			})
 		} else {
-			res.send(utils.throw('failed to retrieve place data', exception.sql('place', err.code, query.build())));
+			res.send(utils.throw('failed to retrieve place data', exception.sql(endpoint, err.code, query.build())));
 		}
 	});
 });
