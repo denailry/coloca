@@ -37,7 +37,7 @@ var normalize = function(str) {
 app.get('/', (req, res) => {
 	var search = req.query.search;
 	var limit = req.query.limit;
-	var offset = req.query.limit;
+	var offset = req.query.offset;
 
 	if (search == null) {
 		search = "";
