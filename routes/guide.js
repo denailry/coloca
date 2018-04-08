@@ -68,7 +68,7 @@ app.get("/", (req, res) => {
 	});
 });	
 
-app.get("/get/:id_guide", (req, res) => {
+app.get("/id/:id_guide", (req, res) => {
 	var idGuide = req.params.id_guide;
 
 	var query = sql.make_sql(sql.SELECT, 'account_guide')
