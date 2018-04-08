@@ -65,7 +65,7 @@ app.get("/", (req, res) => {
 	var query = sql.make_sql(sql.SELECT, 'account_guide natural join ' + sql.wrap(sql.alias(selectedGuide.build(), 'V')))
 		.addFields('id_guide, name, rating, img_type')
 		.setCondition('name', sql.LIKE, utils.wrap('%', name))
-		.setLimit(limit, offset)
+		.setLimit(offset, limit)
 		.setOrder('rating', sql.DESC);
 
 	host.con.query(query.build(), (err, result) => {
