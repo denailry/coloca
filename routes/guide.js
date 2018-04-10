@@ -101,8 +101,8 @@ app.get("/", (req, res) => {
 					values.forEach((value, index) => {
 						value.forEach((item, idx) => {
 							if (item.city.length != 0) {
-								result[item.id_guide].city.push(item.city);
-							}
+								result[index].city.push(item.city);
+							}						
 						});
 					});
 				}).catch((err) => {
@@ -113,7 +113,7 @@ app.get("/", (req, res) => {
 					values.forEach((value, index) => {
 						value.forEach((item, idx) => {
 							if (item.language.length != 0) {
-								result[item.id_guide].language.push(item.language);
+								result[index].language.push(item.language);
 							}
 						});
 					});
